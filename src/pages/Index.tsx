@@ -1,16 +1,42 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useRef, useCallback } from 'react';
+import GlobeScene, { GlobeHandle } from '@/components/GlobeScene';
+import CountryPanel from '@/components/CountryPanel';
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
+  const globeRef = useRef<GlobeHandle>(null);
+
+  const handleCountryClick = useCallback((name: string) => {
+    setSelectedCountry(name);
+    setIsClosing(false);
+    globeRef.current?.flyTo(name);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setSelectedCountry(null);
+      setIsClosing(false);
+    }, 300);
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="relative w-full h-screen overflow-hidden" style={{ background: '#0a0a0f' }}>
+      <GlobeScene
+        ref={globeRef}
+        onCountryClick={handleCountryClick}
+        isPanelOpen={!!selectedCountry}
+      />
+      {selectedCountry && (
+        <CountryPanel
+          countryName={selectedCountry}
+          onClose={handleClose}
+          isClosing={isClosing}
+        />
+      )}
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
