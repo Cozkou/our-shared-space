@@ -50,7 +50,6 @@ const ID_TO_NAME: Record<string, string> = {
   '862': 'Venezuela', '887': 'Yemen', '894': 'Zambia',
 };
 
-// Approximate centroids (lat, lng) for fly-to
 const COUNTRY_CENTROIDS: Record<string, [number, number]> = {
   'Afghanistan': [33, 65], 'Albania': [41, 20], 'Algeria': [28, 3], 'Angola': [-12, 18],
   'Argentina': [-34, -64], 'Australia': [-25, 134], 'Austria': [47, 14], 'Bangladesh': [24, 90],
@@ -228,13 +227,11 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.4;
 
-    // Lights
     scene.add(new THREE.AmbientLight(0x6688bb, 1.5));
     const dir = new THREE.DirectionalLight(0x88aadd, 0.8);
     dir.position.set(5, 3, 5);
     scene.add(dir);
 
-    // Ocean sphere
     const globe = new THREE.Mesh(
       new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64),
       new THREE.MeshPhongMaterial({
@@ -246,7 +243,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
     );
     scene.add(globe);
 
-    // Atmosphere glow — subtle holographic tint
     const atmosMat = new THREE.ShaderMaterial({
       vertexShader: `varying vec3 vN; varying vec3 vPos; void main(){vN=normalize(normalMatrix*normal);vPos=(modelViewMatrix*vec4(position,1.0)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
       fragmentShader: `varying vec3 vN; varying vec3 vPos; void main(){float rim=1.0-abs(dot(vN,vec3(0,0,1)));float i=pow(rim,4.0)*0.6;vec3 col=mix(vec3(0.15,0.25,0.5),vec3(0.2,0.5,0.8),rim);gl_FragColor=vec4(col,i);}`,
@@ -256,7 +252,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
     });
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.08, 48, 48), atmosMat));
 
-    // Stars — lots of them
     const STAR_COUNT = 8000;
     const starsPos = new Float32Array(STAR_COUNT * 3);
     const starColors = new Float32Array(STAR_COUNT * 3);
@@ -264,7 +259,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
       starsPos[i * 3] = (Math.random() - 0.5) * 120;
       starsPos[i * 3 + 1] = (Math.random() - 0.5) * 120;
       starsPos[i * 3 + 2] = (Math.random() - 0.5) * 120;
-      // Slight color variation
       const t = Math.random();
       starColors[i * 3] = 0.5 + t * 0.3;
       starColors[i * 3 + 1] = 0.5 + t * 0.2;
@@ -281,7 +275,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
       opacity: 0.8,
     })));
 
-    // Second layer of dimmer tiny stars for depth
     const TINY_COUNT = 4000;
     const tinyPos = new Float32Array(TINY_COUNT * 3);
     for (let i = 0; i < TINY_COUNT * 3; i++) tinyPos[i] = (Math.random() - 0.5) * 200;
@@ -314,7 +307,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
     };
     sceneRef.current = state;
 
-    // Load countries
     fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
       .then(r => r.json())
       .then(topoData => {
@@ -344,7 +336,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
           const allVerts: number[] = [];
 
           polygons.forEach(poly => {
-            // Border for each ring
             poly.forEach((ring, ringIdx) => {
               const borderPts = coordsToPoints(ring, GLOBE_RADIUS + 0.003);
               if (borderPts.length >= 3) {
@@ -354,7 +345,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
                 countryData.lines.push(line);
               }
 
-              // Only triangulate outer ring (ringIdx 0) for fill
               if (ringIdx > 0) return;
               const pts = coordsToPoints(ring, GLOBE_RADIUS + 0.001);
               if (pts.length < 3) return;
@@ -385,11 +375,9 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
             countryDataMap.set(mesh, countryData);
           }
 
-          // Holographic dots scattered along borders
           const dotPositions: number[] = [];
           polygons.forEach(poly => {
             const ring = poly[0];
-            // Place dots along the border at intervals
             for (let i = 0; i < ring.length - 1; i += 2) {
               const pt = latLngToVec3(ring[i][1], ring[i][0], GLOBE_RADIUS + 0.005);
               dotPositions.push(pt.x, pt.y, pt.z);
@@ -410,9 +398,7 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
         });
       });
 
-    // Grid lines on the globe for holographic feel
     const gridMat = new THREE.LineBasicMaterial({ color: 0x1a2a55, transparent: true, opacity: 0.15 });
-    // Latitude lines
     for (let lat = -80; lat <= 80; lat += 20) {
       const pts: THREE.Vector3[] = [];
       for (let lng = -180; lng <= 180; lng += 4) {
@@ -421,7 +407,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
       const geo = new THREE.BufferGeometry().setFromPoints(pts);
       scene.add(new THREE.Line(geo, gridMat));
     }
-    // Longitude lines
     for (let lng = -180; lng < 180; lng += 30) {
       const pts: THREE.Vector3[] = [];
       for (let lat = -90; lat <= 90; lat += 4) {
@@ -431,7 +416,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
       scene.add(new THREE.Line(geo, gridMat));
     }
 
-    // Events
     const onMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -454,17 +438,15 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
       controls.update();
       frameCount++;
 
-      // Crystal ball transition
       state.crystalProgress += (state.crystalTarget - state.crystalProgress) * 0.04;
       const c = state.crystalProgress;
       const cease = c * c * (3 - 2 * c);
       state.stand.scale.setScalar(cease);
 
-      // Fly-to animation
       if (state.flyTarget) {
         state.flyProgress += 0.02;
         const t = Math.min(state.flyProgress, 1);
-        const ease = t * (2 - t); // ease-out quad
+        const ease = t * (2 - t);
         const currentPos = camera.position.clone();
         const dist = currentPos.length();
         const targetDir = state.flyTarget.clone().normalize().multiplyScalar(dist);
@@ -479,7 +461,6 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
         camera.lookAt(0, 0, 0);
       }
 
-      // Raycast hover every 3 frames
       if (frameCount % 3 === 0 && countryMeshes.length > 0) {
         raycaster.setFromCamera(mouse, camera);
         const hits = raycaster.intersectObjects(countryMeshes);
@@ -552,19 +533,17 @@ const GlobeScene = forwardRef<GlobeHandle, GlobeProps>(({ onCountryClick, isPane
   }, [handleClick]);
 
   return (
-    <div ref={containerRef} className="absolute inset-0 w-full h-full">
+    <div className="relative w-full h-full">
+      <div ref={containerRef} className="w-full h-full" />
       {hoveredName && (
         <div
-          className="fixed z-50 pointer-events-none px-3 py-1.5 rounded-lg text-xs font-medium"
+          className="absolute pointer-events-none px-3 py-1.5 rounded text-xs"
           style={{
-            left: mouseScreenRef.current.x + 14,
-            top: mouseScreenRef.current.y - 10,
-            background: 'rgba(8,12,30,0.85)',
-            backdropFilter: 'blur(12px)',
-            color: '#a0c4f0',
-            border: '1px solid rgba(70,130,200,0.3)',
-            fontFamily: 'DM Sans, system-ui',
-            boxShadow: '0 0 12px rgba(70,130,200,0.15)',
+            left: mouseScreenRef.current.x + 12,
+            top: mouseScreenRef.current.y + 12,
+            background: 'rgba(10,10,15,0.85)',
+            color: '#e2e8f0',
+            border: '1px solid rgba(68,136,204,0.4)',
           }}
         >
           {hoveredName}

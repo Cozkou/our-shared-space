@@ -4,26 +4,23 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="relative h-screen w-full overflow-hidden bg-background text-foreground">
-      <section className="relative z-10 mx-auto flex h-screen max-w-6xl flex-col items-center justify-start px-6 pt-24 text-center">
-        <h1 className="retro-title glow-text text-4xl md:text-6xl">Pulse Earth Vibes</h1>
-        <p className="retro-body mt-8 max-w-3xl text-muted-foreground">
-          A live world map of what people are listening to. Jump country to country, hear previews, and generate playlists from local trends.
-        </p>
-        <div className="mt-10">
-          <button
-            onClick={() => navigate('/globe')}
-            className="retro-title retro-panel rounded-sm px-8 py-4 text-xs text-foreground transition-transform hover:-translate-y-0.5"
-            style={{
-              background: 'linear-gradient(90deg, rgba(0,255,245,0.15), rgba(255,0,153,0.15))',
-            }}
-          >
-            Begin
-          </button>
-        </div>
-
-      </section>
-    </main>
+    <div className="flex flex-col items-center justify-center min-h-screen gap-8" style={{ background: '#0a0a0f', color: '#e2e8f0' }}>
+      <h1 className="text-4xl font-bold tracking-tight" style={{ fontFamily: 'system-ui' }}>Pulse Earth Vibes</h1>
+      <p className="text-sm max-w-md text-center" style={{ color: '#94a3b8' }}>
+        A live world map of what people are listening to. Jump country to country, hear previews, and generate playlists from local trends.
+      </p>
+      <button
+        onClick={() => navigate('/globe')}
+        className="rounded-sm px-8 py-4 text-xs transition-transform hover:-translate-y-0.5"
+        style={{
+          background: 'linear-gradient(90deg, rgba(0,255,245,0.15), rgba(255,0,153,0.15))',
+          color: '#e2e8f0',
+          border: '1px solid rgba(255,255,255,0.1)',
+        }}
+      >
+        Begin
+      </button>
+    </div>
   );
 };
 

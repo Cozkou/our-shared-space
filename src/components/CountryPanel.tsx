@@ -164,75 +164,49 @@ const CountryPanel = ({ countryName, onClose, isClosing }: CountryPanelProps) =>
 
   return (
     <div
-      className={`fixed top-0 right-0 z-40 h-full w-full max-w-[400px] flex ${
-        isClosing ? 'slide-out-right' : 'slide-in-right'
-      }`}
+      className={`absolute right-0 top-0 h-full flex transition-transform duration-300 ${isClosing ? 'translate-x-full' : 'translate-x-0'}`}
+      style={{ zIndex: 50 }}
     >
       {/* Close bar */}
       <button
         onClick={onClose}
-        className="h-full w-8 flex items-center justify-center shrink-0 bg-white/[0.03] hover:bg-white/[0.08] border-r border-white/[0.06] transition-colors active:scale-[0.97] group cursor-pointer"
-        aria-label="Close panel"
+        className="flex items-center justify-center w-8 h-full transition-colors"
+        style={{ background: 'rgba(10,10,15,0.6)' }}
       >
-        <X size={14} className="text-muted-foreground/60 group-hover:text-foreground transition-colors" />
+        <X size={14} style={{ color: '#94a3b8' }} />
       </button>
 
       {/* Panel */}
-      <div className="flex-1 h-full panel-blur retro-panel border-l border-border/30 flex flex-col overflow-hidden">
+      <div
+        className="w-80 h-full overflow-y-auto flex flex-col"
+        style={{ background: 'rgba(10,10,15,0.92)', borderLeft: '1px solid rgba(68,136,204,0.2)' }}
+      >
         {/* Energy bar at top */}
         {data && (
-          <div className="h-1 w-full shrink-0 overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)' }}>
-            <div
-              className="h-full transition-all duration-1000 ease-out"
-              style={{
-                width: `${Math.round(data.energy * 100)}%`,
-                background: `linear-gradient(90deg, ${vibeColor}, ${withAlpha(vibeColor, 0.4)})`,
-                boxShadow: `0 0 12px ${withAlpha(vibeColor, 0.6)}`,
-              }}
-            />
-          </div>
+          <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${vibeColor}, transparent)` }} />
         )}
 
-        <div className="flex flex-col gap-6 p-6 pt-12 overflow-y-auto flex-1">
+        <div className="p-5 flex flex-col gap-5 flex-1">
           {/* Header */}
-          <div>
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <span className="text-4xl">{flag}</span>
-                <h2 className="retro-title text-lg font-bold text-foreground tracking-tight">{displayName}</h2>
-              </div>
-              <button
-                onClick={onClose}
-                aria-label="Close panel"
-                className="w-7 h-7 flex items-center justify-center rounded-sm bg-white/[0.06] hover:bg-white/[0.12] transition-colors border border-white/15"
-              >
-                <X size={12} className="text-muted-foreground" />
-              </button>
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">{flag}</span>
+            <div>
+              <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>{displayName}</h2>
+              <span className="text-xs" style={{ color: vibeColor }}>{vibe}</span>
             </div>
-            <span
-              className="retro-title inline-flex items-center rounded-sm px-3 py-1 text-[10px] font-semibold"
-              style={{
-                backgroundColor: withAlpha(vibeColor, 0.13),
-                color: vibeColor,
-                border: `1px solid ${withAlpha(vibeColor, 0.25)}`,
-              }}
-            >
-              {vibe}
-            </span>
           </div>
 
           {/* Loading state */}
           {loading && (
-            <div className="flex-1 flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="animate-spin" size={20} style={{ color: '#64748b' }} />
             </div>
           )}
 
           {/* Error / no data */}
           {error && !loading && (
-            <div className="flex-1 flex flex-col items-center justify-center py-12 gap-3">
-              <Music className="w-8 h-8 text-muted-foreground/40" />
-              <p className="retro-body text-muted-foreground text-center">{error}</p>
+            <div className="text-center py-8">
+              <p className="text-xs" style={{ color: '#64748b' }}>{error}</p>
             </div>
           )}
 
@@ -241,39 +215,35 @@ const CountryPanel = ({ countryName, onClose, isClosing }: CountryPanelProps) =>
             <>
               {/* Track list */}
               <div className="flex flex-col gap-1">
-                <h3 className="retro-title text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                  Top Tracks
-                </h3>
+                <h3 className="text-xs font-medium mb-2" style={{ color: '#94a3b8' }}>Top Tracks</h3>
                 {data.tracks.slice(0, 5).map((track, i) => {
                   const isPlaying = playingId === track.id;
                   return (
                     <div
                       key={track.id}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors group ${
-                        isPlaying ? 'bg-white/[0.06]' : 'hover:bg-muted/30'
-                      }`}
+                      className="flex items-center gap-2 py-1.5 px-2 rounded-sm transition-colors"
+                      style={{ background: isPlaying ? 'rgba(68,136,204,0.1)' : 'transparent' }}
                     >
-                      <span className="text-xs text-muted-foreground/50 tabular-nums w-4 text-right shrink-0">
-                        {i + 1}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="retro-body text-foreground truncate">{track.name}</p>
-                        <p className="retro-body text-muted-foreground truncate">{track.artist}</p>
+                      <span className="text-[10px] w-4 text-right" style={{ color: '#475569' }}>{i + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs truncate" style={{ color: '#e2e8f0' }}>{track.name}</div>
+                        <div className="text-[10px] truncate" style={{ color: '#64748b' }}>{track.artist}</div>
                       </div>
                       {isPlaying && <SoundWave color={vibeColor} />}
                       {track.preview_url ? (
                         <button
                           onClick={() => handlePlay(track)}
-                          className="w-7 h-7 flex items-center justify-center rounded-sm bg-white/[0.06] hover:bg-white/[0.12] transition-colors shrink-0 cursor-pointer border border-white/15"
+                          className="w-7 h-7 flex items-center justify-center rounded-sm transition-colors shrink-0 cursor-pointer"
+                          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)' }}
                         >
                           {isPlaying ? (
-                            <Pause size={12} className="text-foreground" />
+                            <Pause size={12} style={{ color: '#e2e8f0' }} />
                           ) : (
-                            <Play size={12} className="text-foreground ml-0.5" />
+                            <Play size={12} style={{ color: '#e2e8f0' }} />
                           )}
                         </button>
                       ) : (
-                        <span className="w-7 h-7 shrink-0" />
+                        <Music size={12} style={{ color: '#334155' }} />
                       )}
                     </div>
                   );
@@ -281,68 +251,67 @@ const CountryPanel = ({ countryName, onClose, isClosing }: CountryPanelProps) =>
               </div>
 
               {/* Mood */}
-              <div className="flex flex-col gap-3">
-                <h3 className="retro-title text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Mood</h3>
-                <MoodBar label="Energy" value={Math.round(data.energy * 100)} color="var(--energy)" />
-                <MoodBar label="Danceability" value={Math.round(data.danceability * 100)} color="var(--danceability)" />
-                <MoodBar label="Valence" value={Math.round(data.valence * 100)} color="var(--valence)" />
+              <div className="flex flex-col gap-2">
+                <h3 className="text-xs font-medium" style={{ color: '#94a3b8' }}>Mood</h3>
+                <MoodBar label="Energy" value={data.energy} color={vibeColor} />
+                <MoodBar label="Dance" value={data.danceability} color={vibeColor} />
+                <MoodBar label="Valence" value={data.valence} color={vibeColor} />
               </div>
             </>
           )}
+
+          {/* Action buttons */}
+          {data && !loading && (
+            <div className="flex flex-col gap-2 mt-auto pb-4">
+              <button
+                onClick={handleCreatePlaylist}
+                disabled={creatingPlaylist}
+                className="flex items-center justify-center gap-2 py-2.5 rounded-sm text-xs transition-colors"
+                style={{
+                  background: withAlpha(vibeColor, 0.15),
+                  color: '#e2e8f0',
+                  border: `1px solid ${withAlpha(vibeColor, 0.3)}`,
+                }}
+              >
+                {creatingPlaylist ? <Loader2 size={14} className="animate-spin" /> : '🎵'}
+                {creatingPlaylist ? 'Creating…' : 'Create Playlist'}
+              </button>
+
+              {playlistResult && (
+                <div
+                  className="rounded-sm p-3 text-xs"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  {playlistResult.error ? (
+                    <p style={{ color: '#f87171' }}>{playlistResult.error}</p>
+                  ) : (
+                    <>
+                      <p className="font-medium mb-1" style={{ color: '#e2e8f0' }}>
+                        🎵 {playlistResult.name}
+                      </p>
+                      {playlistResult.tracks.length > 0 && (
+                        <div className="flex flex-col gap-0.5 mb-2">
+                          {playlistResult.tracks.map((t, i) => (
+                            <span key={i} style={{ color: '#94a3b8' }}>{t}</span>
+                          ))}
+                        </div>
+                      )}
+                      <a
+                        href={playlistResult.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block mt-1"
+                        style={{ color: '#4ade80' }}
+                      >
+                        🎧 Open in Spotify
+                      </a>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Action buttons */}
-        {data && !loading && (
-          <div className="p-6 pt-0 flex flex-col gap-2">
-            <button
-              onClick={handleCreatePlaylist}
-              disabled={creatingPlaylist}
-              className="retro-title w-full flex items-center justify-center gap-2 rounded-sm py-3 text-[10px] font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-wait"
-              style={{
-                backgroundColor: 'hsla(var(--spotify-green) / 0.15)',
-                color: 'hsl(var(--spotify-green))',
-                border: '1px solid hsla(var(--spotify-green) / 0.2)',
-              }}
-            >
-              {creatingPlaylist ? <Loader2 size={14} className="animate-spin" /> : '🎵'}
-              {creatingPlaylist ? 'Creating…' : 'Create Playlist'}
-            </button>
-
-            {playlistResult && (
-              <div className="retro-panel mt-1 overflow-hidden border border-white/[0.06] bg-white/[0.03] p-3 flex flex-col gap-2">
-                {playlistResult.error ? (
-                  <p className="retro-body text-red-400">{playlistResult.error}</p>
-                ) : (
-                  <>
-                    <p className="retro-title text-[10px] text-foreground">
-                      🎵 {playlistResult.name}
-                    </p>
-                    {playlistResult.tracks.length > 0 && (
-                      <div className="flex flex-col gap-0.5">
-                        {playlistResult.tracks.map((t, i) => (
-                          <p key={i} className="retro-body text-muted-foreground text-sm">{t}</p>
-                        ))}
-                      </div>
-                    )}
-                    <a
-                      href={playlistResult.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="retro-title flex items-center justify-center gap-2 rounded-sm py-2.5 text-[10px] font-semibold transition-colors"
-                      style={{
-                        backgroundColor: 'hsla(var(--spotify-green) / 0.15)',
-                        color: 'hsl(var(--spotify-green))',
-                        border: '1px solid hsla(var(--spotify-green) / 0.2)',
-                      }}
-                    >
-                      🎧 Open in Spotify
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -350,29 +319,33 @@ const CountryPanel = ({ countryName, onClose, isClosing }: CountryPanelProps) =>
 
 function SoundWave({ color }: { color: string }) {
   return (
-    <div className="soundwave" style={{ color }}>
-      <span />
-      <span />
-      <span />
-      <span />
+    <div className="flex items-center gap-[2px] h-3">
+      {[1, 2, 3].map(i => (
+        <div
+          key={i}
+          className="w-[2px] rounded-full animate-pulse"
+          style={{
+            background: color,
+            height: `${4 + Math.random() * 8}px`,
+            animationDelay: `${i * 0.15}s`,
+          }}
+        />
+      ))}
     </div>
   );
 }
 
 function MoodBar({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
-        <span className="retro-title text-[10px] text-muted-foreground">{label}</span>
-        <span className="retro-title text-[10px] tabular-nums text-muted-foreground">{value}%</span>
+    <div className="flex flex-col gap-1">
+      <div className="flex justify-between text-[10px]">
+        <span style={{ color: '#94a3b8' }}>{label}</span>
+        <span style={{ color: '#64748b' }}>{value}%</span>
       </div>
-      <div className="h-1.5 w-full rounded-full bg-muted/50 overflow-hidden">
+      <div className="h-1 rounded-full w-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
         <div
-          className="h-full rounded-full transition-all duration-700 ease-out"
-          style={{
-            width: `${value}%`,
-            backgroundColor: `hsl(${color})`,
-          }}
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${value}%`, background: color }}
         />
       </div>
     </div>
